@@ -6,12 +6,15 @@ import (
 )
 
 type Log struct {
-	mu      sync.Mutex
+	mu      *sync.Mutex
 	records []Record
 }
 
 func NewLog() *Log {
-	return &Log{}
+	return &Log{
+		mu:      new(sync.Mutex),
+		records: make([]Record, 0),
+	}
 }
 
 func (c *Log) Append(record Record) (uint64, error) {
