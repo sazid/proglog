@@ -32,7 +32,7 @@ func newIndex(f *os.File, c Config) (*index, error) {
 	idx.size = uint64(fi.Size())
 	// Resize the file to be exactly `MaxIndexBytes` because this cannot be
 	// resized later on while the memory is mapped.
-	if err := os.Truncate(f.Name(), c.Segment.MaxIndexBytes); err != nil {
+	if err := os.Truncate(f.Name(), int64(c.Segment.MaxIndexBytes)); err != nil {
 		return nil, err
 	}
 	// Create a mmap, given the file descriptor. This reads the whole file
@@ -51,7 +51,8 @@ func newIndex(f *os.File, c Config) (*index, error) {
 }
 
 // Read takes an offset in index and returns the associated record's "offset" and
-// "position" in the store.
+// "position" in the store. If `in` is "-1" it'll return the last index entry
+// if available.
 func (i *index) Read(in int64) (recordOffset uint32, recordPos uint64, err error) {
 	// If there's no index entry, we simply return EOF.
 	if i.size == 0 {
