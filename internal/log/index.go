@@ -50,10 +50,10 @@ func newIndex(f *os.File, c Config) (*index, error) {
 	return idx, nil
 }
 
-// Read takes an offset in index and returns the associated record's "offset" and
-// "position" in the store. If `in` is "-1" it'll return the last index entry
-// if available.
-func (i *index) Read(in int64) (recordOffset uint32, recordPos uint64, err error) {
+// Read takes an offset in index and returns the associated index's "offset" and
+// the record's "position" in the store. If `in` is "-1" it'll return the last
+// index entry if available.
+func (i *index) Read(in int64) (indexOffset uint32, recordPos uint64, err error) {
 	// If there's no index entry, we simply return EOF.
 	if i.size == 0 {
 		return 0, 0, io.EOF
@@ -62,35 +62,36 @@ func (i *index) Read(in int64) (recordOffset uint32, recordPos uint64, err error
 	// recordOffset temporarily holds the offset of the index's entry.
 	if in == -1 {
 		// Offset of the last entry.
-		recordOffset = uint32((i.size / entWidth) - 1)
+		indexOffset = uint32((i.size / entWidth) - 1)
 	} else {
 		// Or the asked entry if its valid.
-		recordOffset = uint32(in)
+		indexOffset = uint32(in)
 	}
 
 	// recordPos temporarily holds the position of the index's entry.
-	recordPos = uint64(recordOffset) * entWidth
+	recordPos = uint64(indexOffset) * entWidth
 
 	// If the last entry is invalid, we return EOF.
 	if i.size < recordPos+entWidth {
 		return 0, 0, io.EOF
 	}
 
-	// Read the record's "offset" in store, from the first 4 bytes.
-	recordOffset = enc.Uint32(i.mmap[recordPos : recordPos+offWidth])
+	// Read the index entry's "offset", from the first 4 bytes.
+	indexOffset = enc.Uint32(i.mmap[recordPos : recordPos+offWidth])
 	// Read the record's "position" in store, from the next 8 bytes.
 	recordPos = enc.Uint64(i.mmap[recordPos+offWidth : recordPos+entWidth])
 
-	return recordOffset, recordPos, nil
+	return indexOffset, recordPos, nil
 }
 
-// Write appends the given offset and position of a record to the index.
+// Write appends the given offset of an index entry and position of a record to
+// the index.
 func (i *index) Write(off uint32, pos uint64) error {
 	// If there's not enough room to add another entry, we return EOF.
 	if uint64(len(i.mmap)) < i.size+entWidth {
 		return io.EOF
 	}
-	// Otherwise, we put the "offset" of a record in the first 4 bytes.
+	// Otherwise, we put the "offset" of the index entry in the first 4 bytes.
 	enc.PutUint32(i.mmap[i.size:i.size+offWidth], off)
 	// And the "position" in the next 8 bytes.
 	enc.PutUint64(i.mmap[i.size+offWidth:i.size+entWidth], pos)
