@@ -31,10 +31,11 @@ func NewLog(dir string, c Config) (*Log, error) {
 		c.Segment.MaxIndexBytes = 1024
 	}
 	l := &Log{
+		mu:     new(sync.RWMutex),
 		Dir:    dir,
 		Config: c,
 	}
-	return l, nil
+	return l, l.setup()
 }
 
 func (l *Log) setup() error {
@@ -76,8 +77,6 @@ func (l *Log) setup() error {
 }
 
 func (l *Log) newSegment(off uint64) error {
-	l.mu.Lock()
-	defer l.mu.Unlock()
 	s, err := newSegment(l.Dir, off, l.Config)
 	if err != nil {
 		return err
@@ -128,8 +127,6 @@ func (l *Log) Close() error {
 			return fmt.Errorf("error closing log for segment: %w", err)
 		}
 	}
-	l.segments = make([]*segment, 0)
-	l.activeSegment = nil
 	return nil
 }
 
