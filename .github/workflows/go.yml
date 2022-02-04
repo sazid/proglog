@@ -20,12 +20,14 @@ jobs:
         go-version: 1.18beta2
 
     - name: Build
+      run: make
+
+    - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: binaries
         path: |
           bin
-      run: make
 
     - name: Test
       run: go test -v ./...
