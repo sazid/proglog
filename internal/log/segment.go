@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	log_v1 "github.com/sazid/proglog/api/v1"
+	api "github.com/sazid/proglog/api/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -57,7 +57,7 @@ func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 	return s, nil
 }
 
-func (s *segment) Append(record *log_v1.Record) (offset uint64, err error) {
+func (s *segment) Append(record *api.Record) (offset uint64, err error) {
 	cur := s.nextOffset
 	record.Offset = cur
 	p, err := proto.Marshal(record)
@@ -79,7 +79,7 @@ func (s *segment) Append(record *log_v1.Record) (offset uint64, err error) {
 	return cur, nil
 }
 
-func (s *segment) Read(off uint64) (*log_v1.Record, error) {
+func (s *segment) Read(off uint64) (*api.Record, error) {
 	_, pos, err := s.index.Read(int64(off - s.baseOffset))
 	if err != nil {
 		return nil, fmt.Errorf("error reading entry from index: %w", err)
@@ -88,7 +88,7 @@ func (s *segment) Read(off uint64) (*log_v1.Record, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error reading record from store: %w", err)
 	}
-	record := &log_v1.Record{}
+	record := &api.Record{}
 	err = proto.Unmarshal(p, record)
 	return record, err
 }

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	log_v1 "github.com/sazid/proglog/api/v1"
+	api "github.com/sazid/proglog/api/v1"
 )
 
 type Log struct {
@@ -86,7 +86,7 @@ func (l *Log) newSegment(off uint64) error {
 	return nil
 }
 
-func (l *Log) Append(record *log_v1.Record) (uint64, error) {
+func (l *Log) Append(record *api.Record) (uint64, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -100,7 +100,7 @@ func (l *Log) Append(record *log_v1.Record) (uint64, error) {
 	return off, err
 }
 
-func (l *Log) Read(off uint64) (*log_v1.Record, error) {
+func (l *Log) Read(off uint64) (*api.Record, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 
