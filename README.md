@@ -12,4 +12,3 @@ Proglog implements a commit log that works very similar to Kafka's internal stor
   segment is a combination of both a store and an index. The Index denotes where
   to find a particular Record in the associated Store.
 * Log - the abstraction that ties all the segments together.
-
