@@ -40,7 +40,7 @@ all:
 clean:
 	rm -rf bin/
 
-.PHONY: compilekmn 
+.PHONY: compile
 compile:
 	protoc api/v1/*.proto \
 			--go_out=. \
