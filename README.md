@@ -1,6 +1,6 @@
 # Proglog
 
-Proglog implements a commit log that works very similar to Kafka's internal storage system, [see here](https://thehoard.blog/how-kafkas-storage-internals-work-3a29b02e026).
+Proglog implements a commit log that works very similar to Kafka's internal storage system, [see here](https://medium.com/the-hoard/how-kafkas-storage-internals-work-3a29b02e026).
 
 ## Concepts
 
